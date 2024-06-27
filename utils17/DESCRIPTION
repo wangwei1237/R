@@ -1,0 +1,10 @@
+Package: utils17
+Type: Package
+Title: Util Functions
+Version: 0.1.0
+Author: Wang Wei
+Maintainer: Wang Wei <wangwei1237@gmail.com>
+Description: Some useful util functions.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
