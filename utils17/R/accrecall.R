@@ -1,10 +1,10 @@
-accrecall_inner <- function(data) {
+accrecall_inner <- function(data, actural, predict) {
   true_positive <- true_negative <- false_positive <- false_negative <- 0
   with(data, {
-    true_positive <<- sum(人工评分 == 1 & gpt评分 == 1)
-    true_negative <<- sum(人工评分 == 0 & gpt评分 == 0)
-    false_positive <<- sum(人工评分 == 0 & gpt评分 == 1)
-    false_negative <<- sum(人工评分 == 1 & gpt评分 == 0)
+    true_positive <<- sum(data[[actural]] == 1 & data[[predict]] == 1)
+    true_negative <<- sum(data[[actural]] == 0 & data[[predict]] == 0)
+    false_positive <<- sum(data[[actural]] == 0 & data[[predict]] == 1)
+    false_negative <<- sum(data[[actural]] == 1 & data[[predict]] == 0)
   })
 
   accuracy <- (true_positive + true_negative) / nrow(data)
@@ -19,9 +19,13 @@ accrecall_inner <- function(data) {
                     Recall = recall, F1_Score = f1_score))
 }
 
-accrecall <- function(data, category = "") {
+accrecall <- function(data, category, actural, predict) {
   cols <- names(data)
-  overall_metrics <- accrecall_inner(data = data)
+  if (!(actural %in% cols) | !(predict %in% cols)) {
+    return("")
+  }
+
+  overall_metrics <- accrecall_inner(data, actural, predict)
   overall_metrics$Style <- "整体"
   if (!nzchar(category)) {
     return(overall_metrics)
@@ -34,7 +38,7 @@ accrecall <- function(data, category = "") {
   styles <- unique(data[[category]])
   style_metrics <- do.call(rbind, lapply(styles, function(style) {
     style_data <- subset(data, data[[category]] == style)
-    metrics <- accrecall_inner(style_data)
+    metrics <- accrecall_inner(style_data, actural, predict)
     metrics$Style <- style
     return(metrics)
   }))
