@@ -1,11 +1,8 @@
 accrecall_inner <- function(data, actural, predict) {
-  true_positive <- true_negative <- false_positive <- false_negative <- 0
-  with(data, {
-    true_positive <<- sum(data[[actural]] == 1 & data[[predict]] == 1)
-    true_negative <<- sum(data[[actural]] == 0 & data[[predict]] == 0)
-    false_positive <<- sum(data[[actural]] == 0 & data[[predict]] == 1)
-    false_negative <<- sum(data[[actural]] == 1 & data[[predict]] == 0)
-  })
+  true_positive <- sum(data[[actural]] == 1 & data[[predict]] == 1)
+  true_negative <- sum(data[[actural]] == 0 & data[[predict]] == 0)
+  false_positive <- sum(data[[actural]] == 0 & data[[predict]] == 1)
+  false_negative <- sum(data[[actural]] == 1 & data[[predict]] == 0)
 
   accuracy <- (true_positive + true_negative) / nrow(data)
   precision <- ifelse((true_positive + false_positive) > 0,
