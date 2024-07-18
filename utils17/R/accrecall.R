@@ -11,9 +11,10 @@ accrecall_inner <- function(data, actural, predict) {
                    true_positive / (true_positive + false_negative), 0)
   f1_score <- ifelse((precision + recall) > 0,
                      2 * (precision * recall) / (precision + recall), 0)
-
+  fpr <- ifelse((true_negative + false_positive) > 0,
+                false_positive / (true_negative + false_positive), 0)
   return(data.frame(Accuracy = accuracy, Precision = precision,
-                    Recall = recall, F1_Score = f1_score))
+                    Recall = recall, F1_Score = f1_score, FPR = fpr))
 }
 
 accrecall <- function(data, category, actural, predict) {
@@ -42,6 +43,6 @@ accrecall <- function(data, category, actural, predict) {
 
   all_metrics <- rbind(overall_metrics, style_metrics)
   all_metrics <- all_metrics[, c("Style", "Accuracy", "Precision", "Recall",
-                                 "F1_Score")]
+                                 "F1_Score", "FPR")]
   return(all_metrics)
 }
