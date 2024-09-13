@@ -7,7 +7,7 @@ library(reshape2)
 data <- data.frame(
   Benchmark = c("MATH", "MathVista (testmini)", "MMMU (val)", "MMLU"),
   B = c(94.8, 73.2, 78.1, 92.3),   # B的得分
-  A = c(60.3, 63.8, 69.1, 88.0)  # A的得分
+  A = c(60.3, 63.8, 69.1, 88.0)    # A的得分
 )
 
 melted_data <- melt(data, id.vars = c("Benchmark"), variable.name = "Type", 
@@ -25,8 +25,13 @@ g <- ggplot(melted_data, aes(x = Benchmark, y = Value, fill = Type)) +
     axis.text.y = element_text(size = 12),
     axis.text.x = element_text(size = 10),
     legend.position.inside = c(0.5, 1),
-    legend.justification = c("center", "top")
+    legend.justification = c("center", "top"),
+    panel.grid.major = element_blank(),   # 隐藏主刻度线
+    panel.grid.minor = element_blank(),   # 隐藏次刻度线
+    axis.line = element_line(),           # 保留x轴和y轴本身
+    axis.ticks = element_line()           # 保留x轴和y轴上的刻度线
   ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +  # 强制x轴从y=0开始
   geom_text(data = subset(melted_data, Type == "A"),
             aes(label = round(Value, 1)),
             position = position_nudge(y = -5),
