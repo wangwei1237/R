@@ -4,6 +4,8 @@ library(ggplot2)
 # 数据来源于七麦
 data <- read.csv("./top_app_release.csv",
                  stringsAsFactors = FALSE)
+data$APP <- factor(data$APP)
+
 data$Date <- as.Date(data$Date, format = "%Y/%m/%d")
 
 clean_data <- data |>
@@ -15,7 +17,15 @@ clean_data <- data |>
   filter(Interval > 0) |>
   ungroup()
 
-# print(clean_data, n = 500)
+mean_data <- clean_data |>
+  group_by(APP) |>
+  summarize(Total_Mean_Interval = mean(Interval, na.rm = TRUE),
+            .groups = "keep")
+
+# 根据 APP 的整体中位数重新排序
+clean_data <- clean_data |>
+  left_join(mean_data, by = "APP") |>
+  arrange(Total_Mean_Interval)
 
 # 计算每个箱线图的中位数
 summary_data <- clean_data |>
@@ -24,10 +34,12 @@ summary_data <- clean_data |>
             Mean_Interval = mean(Interval, na.rm = TRUE),
             .groups = "keep")
 
-g1 <- ggplot(clean_data, aes(x = APP, y = Interval, fill = Type)) +
+g1 <- ggplot(clean_data, aes(x = reorder(APP, Total_Mean_Interval),
+                             y = Interval, fill = Type)) +
   geom_boxplot() +
   geom_text(data = summary_data,
-            aes(x = APP, y = Mean_Interval, label = round(Mean_Interval, 0)),
+            aes(x = APP, y = Median_Interval,
+                label = round(Median_Interval, 0)),
             position = position_dodge(width = 0.75), vjust = -0.3, size = 4) +
   labs(title = "TOP APP 的发版时间间隔分布",
        x = "",
@@ -52,14 +64,14 @@ bar_data <- clean_data |>
   filter(ci < 30)
 
 print(bar_data)
-g2 <- ggplot(bar_data, aes(x = APP, y = mean, fill = Type)) +
+g2 <- ggplot(bar_data, aes(x = reorder(APP, mean), y = mean, fill = Type)) +
   geom_bar(stat = "identity",
            position = position_dodge(width = 0.8),
            width = 0.7) +
   geom_errorbar(aes(ymin = ifelse(mean - ci < 0, 0, mean - ci),
                     ymax = ifelse(mean + ci > 100, mean, mean + ci)),
                 position = position_dodge(width = 0.8),
-                width = 0.2) + 
+                width = 0.2) +
   labs(title = "TOP APP 的平均发版时间隔（95%置信区间）",
        x = "",
        y = "平均发版间隔（天）") +
@@ -71,8 +83,6 @@ g2 <- ggplot(bar_data, aes(x = APP, y = mean, fill = Type)) +
   theme(legend.position = "top",             # 图例放置在左上角
         legend.justification = c(0, 1),      # 设置图例的对齐方式
         legend.title = element_blank())
-
-
 
 ggsave("app_version_box.jpeg", plot = g1,
        width = 10, height = 4, units = "in")
