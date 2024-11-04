@@ -156,6 +156,16 @@ get_llm_list_parameters_cnt <- function(llm_list) {
 }
 
 llm_list <- list(
+  list(model_name = "GPT-1",
+       n_vocabulary = 40000,
+       n_ctx = 512,
+       d_model = 768,
+       d_q = 64,
+       d_k = 64,
+       d_v = 64,
+       n_heads = 12,
+       n_layers = 12,
+       d_ff = 768 * 4),
   list(model_name = "GPT-2-Small",
        n_vocabulary = 50257,
        n_ctx = 1024,
